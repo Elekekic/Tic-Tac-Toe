@@ -1,1 +1,48 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+    --background-color: #1A1A19;
+    --baloo: "Baloo Bhaijaan 2", sans-serif;
+    --oddval: "Oddval-SemiBold", sans-serif;
+    --light-green: #859F3D;
+    --dark-green: #31511E;
+    --text-color: #FFF6DA;
+    --altone: "Altone", sans-serif;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400..800&display=swap');
+
+@font-face {
+    font-family: 'Oddval-SemiBold';
+    src: url(../src/assets/fonts/Oddval-SemiBold.ttf);
+    font-weight: normal;
+    font-style: normal;
+}
+
+.baloo-bhaijaan-2 {
+    font-family: "Baloo Bhaijaan 2", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.medium-text {
+    font-size: 20px;
+}
+
+.small-text {
+    font-size: 16px;
+}
+
+.opacity-50 {
+    opacity: 50%;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background-color: var(--background-color);
+    font-family: var(--baloo);
+    color: var(--text-color);
+}
