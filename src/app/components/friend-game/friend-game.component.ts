@@ -1,8 +1,6 @@
-import { AfterViewInit, Component, OnChanges, OnInit, Renderer2, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, OnInit, Renderer2 } from '@angular/core';
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
-
-
 
 @Component({
   selector: 'app-friend-game',
@@ -11,15 +9,20 @@ import { Draggable } from "gsap/Draggable";
 })
 export class FriendGameComponent implements OnInit, AfterViewInit {
 
+  static instance: FriendGameComponent;
+
   //name of the player that is going to be dynamic in the HTML
   nameplayer: string = 'PLAYER 1';
+
   //token to play with
   token: 'X' | 'O' = 'X';
+
   //winner message
   winnerMessage: string | null = null;
 
   //draw message
   drawMessage: string | null = null;
+
   //checking the board state
   boardState: string[][] = [
     ['', '', ''],
@@ -27,13 +30,8 @@ export class FriendGameComponent implements OnInit, AfterViewInit {
     ['', '', '']
   ];
 
-  static instance: FriendGameComponent;
-  constructor(private renderer: Renderer2) { }
 
-  /*  ngOnChanges(): void {
-     //creating another draggable token when the player drags a token to put it in the board
-     this.createDraggableToken(this.token);
-   } */
+  constructor(private renderer: Renderer2) { }
 
   ngOnInit(): void {
     console.log("step 1")
@@ -48,7 +46,7 @@ export class FriendGameComponent implements OnInit, AfterViewInit {
     //creating the draggable element O
     Draggable.create("#O")
 
-      this.createDraggableToken(this.token);
+    this.createDraggableToken(this.token);
 
   }
 
@@ -60,51 +58,51 @@ export class FriendGameComponent implements OnInit, AfterViewInit {
     this.createDraggableToken(this.token);
   }
 
+  //method that creates the token after the turn is finished
   createDraggableToken(token: string) {
-    console.log("creating draggable token")
+
     //selecting the container for the X or O
     const container = document.querySelector(`.${token === 'X' ? 'x-token-container' : 'o-token-container'}`);
-    console.log('container:', container);
 
+    //creating the new token
     const newToken = this.renderer.createElement('span');
     this.renderer.addClass(newToken, 'token');
     this.renderer.addClass(newToken, token);
     newToken.innerText = token;
-
     this.renderer.appendChild(container, newToken);
 
+    //making it draggable with gsap
     Draggable.create(newToken, {
-      type: "x,y",
+      type: "x,y", //this is to know i can move it on the axes x and y
+      
+      // method to make it more easy to access the token
       onPress: function (this: any) {
         this.component = FriendGameComponent.instance;
       },
 
       onDragEnd: function (this: any) {
-        console.log("located it")
         const component = this.component as FriendGameComponent;
+
         const lastEvent = this.pointerEvent || this.interaction?.event;
         const endX = lastEvent?.clientX;
         const endY = lastEvent?.clientY;
-        console.log("Corrected endX:", endX, "endY:", endY);
+        
         this.target.style.visibility = "hidden";
         const droppedOn = document.elementFromPoint(endX, endY);
         this.target.style.visibility = "visible";
 
-        console.log("Real droppedOn:", droppedOn);
-
         const cell = droppedOn?.closest(".cell");
 
         if (cell && !cell.classList.contains('X') && !cell.classList.contains('O')) {
+          //i need these for the checking winner method
           const row = parseInt(cell.getAttribute('data-row')!);
           const col = parseInt(cell.getAttribute('data-col')!);
-
-          cell.classList.add('token', component.token);
           component.boardState[row][col] = component.token;
 
-          // Append the token to the cell
+          //append the token to the cell
           cell.appendChild(this.target);
 
-          // Reset transform so it doesn't look offset
+          //reset transform so it doesn't look offset
           gsap.set(this.target, { x: 0, y: 0 });
           this.kill();
 
@@ -113,12 +111,12 @@ export class FriendGameComponent implements OnInit, AfterViewInit {
           if (winner) {
             component.winnerMessage = `${component.nameplayer} WINS, CONGRATS!`;
           } else {
-            // Check for draw: if all cells are filled and no winner
+            //checking if this turn could be a draw
             const allFilled = component.boardState.every(row => row.every(cell => cell !== ''));
             if (allFilled) {
               component.drawMessage = "IT’S A DRAW FOR THIS TIME";
             } else {
-              // No winner or draw — switch player
+              //no winner or draw — switch player
               component.switchPlayer();
             }
           }
@@ -158,36 +156,31 @@ export class FriendGameComponent implements OnInit, AfterViewInit {
     return null;
   }
 
+  //method to reset the game
   resetGame(): void {
-    // Reset board state
+    //reset board state
     this.boardState = [
       ['', '', ''],
       ['', '', ''],
       ['', '', '']
     ];
 
-    // Reset messages
+    //reset messages
     this.winnerMessage = null;
     this.drawMessage = null;
 
-    // Reset token and player name
+    //reset token and player name
     this.token = 'X';
     this.nameplayer = 'PLAYER 1';
 
-    // Clear tokens from the board
+    //clear tokens from the board
     const cells = document.querySelectorAll('.cell');
     cells.forEach(cell => {
-      cell.classList.remove('X', 'O', 'token');
       cell.innerHTML = '';
     });
 
-    // Remove remaining draggable tokens
-    document.querySelectorAll('.token.X, .token.O').forEach(el => el.remove());
-
-    // Create initial draggable token
-    setTimeout(() => {
-      this.createDraggableToken(this.token);
-    }, 300);
+    //create initial draggable token
+    this.createDraggableToken(this.token);
   }
 }
 
